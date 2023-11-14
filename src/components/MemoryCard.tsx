@@ -22,7 +22,7 @@ export const MemoryCard: React.FC<Props> = ({ memory }) => {
     mutationFn: (params: { id: string }) => deleteMemory(params.id),
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.resetQueries({
+      queryClient.invalidateQueries({
         queryKey: ['memories', `${memory.lane_id}`],
       })
     },
