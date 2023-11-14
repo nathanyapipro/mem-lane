@@ -38,7 +38,7 @@ export const EditLaneForm: React.FC<Props> = ({ lane, onExit }) => {
 
   const queryClient = useQueryClient()
 
-  const mutation = useMutation({
+  const editLaneMutation = useMutation({
     mutationFn: (params: CreateLane) => putLane(lane.id, params),
     onSuccess: () => {
       // Invalidate and refetch
@@ -49,7 +49,7 @@ export const EditLaneForm: React.FC<Props> = ({ lane, onExit }) => {
   })
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    mutation.mutate(data)
+    editLaneMutation.mutate(data)
   }
 
   const handleCancel = () => {

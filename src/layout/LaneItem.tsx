@@ -10,7 +10,7 @@ export const LaneItem: React.FC<Props> = (props) => {
   const navigate = useNavigate()
 
   const handleClick = () => {
-    navigate(`lane/${props.id}`)
+    navigate(`lanes/${props.id}`)
   }
   return (
     <ListItem

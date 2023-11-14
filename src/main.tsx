@@ -10,6 +10,7 @@ import { CreateLanePage } from './pages/CreateLane'
 import Root from './layout/Root'
 import ErrorPage from './pages/ErrorPage'
 import { HomePage } from './pages/Home'
+import { CreateMemoryPage } from './pages/CreateMemory'
 
 // Create a client
 const queryClient = new QueryClient()
@@ -22,12 +23,16 @@ const router = createBrowserRouter([
 
     children: [
       {
-        path: 'lane/create',
+        path: 'lanes/create',
         element: <CreateLanePage />,
       },
       {
-        path: 'lane/:laneId',
+        path: 'lanes/:laneId',
         element: <LanePage />,
+      },
+      {
+        path: `/lanes/:laneId/memory-create`,
+        element: <CreateMemoryPage />,
       },
       {
         path: '',

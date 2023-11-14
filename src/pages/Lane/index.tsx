@@ -5,6 +5,7 @@ import { Container } from '@mui/material'
 import { useParams } from 'react-router-dom'
 
 import { LaneHeader } from './LaneHeader'
+import { MemoryList } from './MemoryList'
 
 export const LanePage: React.FC = () => {
   const { laneId } = useParams<{ laneId: string }>()
@@ -25,6 +26,7 @@ export const LanePage: React.FC = () => {
       }}
     >
       <LaneHeader lane={data} />
+      <MemoryList lane={data} />
     </Container>
   )
 }

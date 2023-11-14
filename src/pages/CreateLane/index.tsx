@@ -37,17 +37,17 @@ export const CreateLanePage: React.FC = () => {
 
   const queryClient = useQueryClient()
 
-  const mutation = useMutation({
+  const createLaneMutation = useMutation({
     mutationFn: postLane,
     onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ['lanes'] })
+      navigate('/')
     },
   })
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    mutation.mutate(data)
-    navigate('/')
+    createLaneMutation.mutate(data)
   }
 
   const handleCancel = () => {
@@ -117,12 +117,7 @@ export const CreateLanePage: React.FC = () => {
               mt: 4,
             }}
           >
-            <Button
-              type='submit'
-              variant='outlined'
-              onClick={handleCancel}
-              sx={{ mr: 2 }}
-            >
+            <Button variant='outlined' onClick={handleCancel} sx={{ mr: 2 }}>
               Cancel
             </Button>
             <Button type='submit' variant='contained'>

@@ -15,19 +15,19 @@ import { LaneItem } from './LaneItem'
 import { useNavigate } from 'react-router-dom'
 import { Add } from '@mui/icons-material'
 
-export const drawerWidth = 240
+export const drawerWidth = 300
 
 export const Navigation: React.FC = () => {
-  const query = useQuery({ queryKey: ['lanes'], queryFn: fetchLanes })
+  const listLanesQuery = useQuery({ queryKey: ['lanes'], queryFn: fetchLanes })
 
   const navigate = useNavigate()
 
   const handleCreateClick = () => {
-    navigate('lane/create')
+    navigate('lanes/create')
   }
 
   const renderLaneItems = () => {
-    if (query.data === undefined || query.data.length === 0) {
+    if (listLanesQuery.data === undefined || listLanesQuery.data.length === 0) {
       return (
         <Box sx={{ ml: 2, mr: 2 }}>
           <Typography fontStyle={'italic'} variant='body2'>
@@ -39,7 +39,7 @@ export const Navigation: React.FC = () => {
 
     return (
       <>
-        {query.data.map((lane) => (
+        {listLanesQuery.data.map((lane) => (
           <LaneItem {...lane} key={lane.id} />
         ))}
       </>

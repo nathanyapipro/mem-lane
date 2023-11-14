@@ -1,10 +1,15 @@
 const express = require('express')
 const sqlite3 = require('sqlite3')
+const bodyParser = require('body-parser')
 const cors = require('cors')
+const uuid = require('uuid')
 
 const app = express()
 
 app.use(cors())
+app.use(express.json({ extended: true, limit: '25mb' }))
+
+app.use(express.urlencoded({ extended: true, limit: '25mb' }))
 const port = 4001
 const db = new sqlite3.Database('memories.db')
 
@@ -14,18 +19,31 @@ db.serialize(() => {
   db.run(`
 
     CREATE TABLE IF NOT EXISTS lanes (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id TEXT PRIMARY KEY,
       name TEXT,
       description TEXT
     );
   
+  `)
+
+  db.run(`
+  
     CREATE TABLE IF NOT EXISTS memories (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id TEXT PRIMARY KEY,
       lane_id INTEGER,
       name TEXT,
       description TEXT,
       timestamp DATE,
       FOREIGN KEY(lane_id) REFERENCES lanes(id)
+    );
+  `)
+
+  db.run(`
+  
+    CREATE TABLE IF NOT EXISTS memory_images (
+      id TEXT PRIMARY KEY,
+      memories_id INTEGER,
+      base64 TEXT
     );
   `)
 })
@@ -51,8 +69,12 @@ app.post('/lanes', (req, res) => {
     return
   }
 
-  const stmt = db.prepare('INSERT INTO lanes (name, description) VALUES (?, ?)')
-  stmt.run(name, description, (err) => {
+  const id = uuid.v4()
+
+  const stmt = db.prepare(
+    'INSERT INTO lanes (id,name, description) VALUES (?, ?, ?)'
+  )
+  stmt.run(id, name, description, (err) => {
     if (err) {
       res.status(500).json({ error: err.message })
       return
@@ -100,6 +122,17 @@ app.put('/lanes/:id', (req, res) => {
   })
 })
 
+app.delete('/lanes/:id', (req, res) => {
+  const { id } = req.params
+  db.run('DELETE FROM lanes WHERE id = ?', [id], (err) => {
+    if (err) {
+      res.status(500).json({ error: err.message })
+      return
+    }
+    res.json({ message: 'Lane deleted successfully' })
+  })
+})
+
 // MEMORIES
 app.get('/memories/:laneId', (req, res) => {
   const laneId = req.params.laneId
@@ -119,23 +152,41 @@ app.get('/memories/:laneId', (req, res) => {
 })
 
 app.post('/memories', (req, res) => {
-  const { name, laneId, description, timestamp } = req.body
+  const { name, laneId, description, timestamp, images } = req.body
 
-  if (!name || !laneId || !description || !timestamp) {
+  if (!name || !laneId || !description || !timestamp || !images) {
     res.status(400).json({
       error: 'Please provide all fields: name, laneId, description, timestamp',
     })
     return
   }
 
+  const id = uuid.v4()
+
   const stmt = db.prepare(
-    'INSERT INTO memories (name, laneId, description, timestamp) VALUES (?, ?, ?, ?)'
+    'INSERT INTO memories (id, name, lane_id, description, timestamp) VALUES (?,?, ?, ?, ?)'
   )
-  stmt.run(name, laneId, description, timestamp, (err) => {
+
+  stmt.run(id, name, laneId, description, timestamp, (err) => {
     if (err) {
       res.status(500).json({ error: err.message })
       return
     }
+
+    Promise.all(
+      images.map((img) => {
+        const imageStmt = db.prepare(
+          'INSERT INTO memory_images (memories_id, base64) VALUES (?, ?)'
+        )
+        imageStmt.run(id, img, (err) => {
+          if (err) {
+            res.status(500).json({ error: err.message })
+            return
+          }
+        })
+      })
+    )
+
     res.status(201).json({ message: 'Memory created successfully' })
   })
 })
