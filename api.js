@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const uuid = require('uuid')
 
+// TODO: Move to typescript with proper framework
 const app = express()
 
 app.use(cors())

@@ -1,7 +1,5 @@
 import React, { FC } from 'react'
-
 import { IconButton, Menu, MenuItem, Typography } from '@mui/material'
-
 import { Delete, Edit, MoreHoriz } from '@mui/icons-material'
 
 type Props = {

@@ -76,9 +76,11 @@ export interface MemoryWithImages extends Omit<Memory, 'images'> {
 
 export type CreateMemory = Omit<Memory, 'id' | 'lane_id'> & { laneId: string }
 
+export type MemoriesSort = 'ASC' | 'DESC'
+
 export async function fetchMemories(
   id: string,
-  sort: 'ASC' | 'DESC'
+  sort: MemoriesSort
 ): Promise<Array<MemoryWithImages>> {
   try {
     const { data } = await instance.get(`/memories/${id}?sort=${sort}`)

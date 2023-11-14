@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import * as React from 'react'
-import { Lane, fetchMemories } from '../../utils/api'
+import { Lane, MemoriesSort, fetchMemories } from '../../utils/api'
 import {
   Box,
   Button,
@@ -10,7 +10,6 @@ import {
   SelectChangeEvent,
   Typography,
 } from '@mui/material'
-
 import { Add } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { MemoryCard } from '../../components/MemoryCard'
@@ -20,7 +19,7 @@ interface Props {
 }
 
 export const MemoryList: React.FC<Props> = ({ lane }) => {
-  const [sort, setSort] = React.useState<'ASC' | 'DESC'>('ASC')
+  const [sort, setSort] = React.useState<MemoriesSort>('ASC')
 
   const queryClient = useQueryClient()
   const { data: memories } = useQuery({
@@ -39,7 +38,7 @@ export const MemoryList: React.FC<Props> = ({ lane }) => {
 
   const handleSortChange = (e: SelectChangeEvent<string>) => {
     const value = e.target.value
-    setSort(value as 'ASC' | 'DESC')
+    setSort(value as MemoriesSort)
 
     queryClient.resetQueries({ queryKey: ['lane', `${lane?.id}`] })
   }

@@ -68,6 +68,7 @@ export const CreateMemoryPage: React.FC = () => {
     keyName: 'imageId',
   })
 
+  // TODO: Fix type of ref
   const hiddenFileInput = React.useRef<any | undefined>(undefined)
 
   const onAddImages = () => {
@@ -82,6 +83,8 @@ export const CreateMemoryPage: React.FC = () => {
       uploadedFiles.map(async (file) => {
         // @ts-ignore
         const imageUrl = URL.createObjectURL(file)
+
+        // TODO: should be uploading images to blob storage, but will base64 for now
         // @ts-ignore
         const base64 = await getBase64(file)
 
@@ -188,6 +191,7 @@ export const CreateMemoryPage: React.FC = () => {
           <input
             style={{ visibility: 'hidden' }}
             ref={hiddenFileInput}
+            accept='image/*'
             type='file'
             multiple
             onChange={handleAddImages}

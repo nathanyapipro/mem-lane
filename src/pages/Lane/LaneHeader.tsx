@@ -1,9 +1,7 @@
 import * as React from 'react'
-
 import { Lane, deleteLane } from '../../utils/api'
 import { Card, Skeleton, Typography } from '@mui/material'
 import { EditLaneForm } from './EditLaneForm'
-
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { EllipsisMenuButton } from '../../components/EllipsisMenuButton'

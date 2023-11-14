@@ -1,8 +1,6 @@
 import * as React from 'react'
 import { MemoryWithImages, deleteMemory } from '../utils/api'
 import { Box, Card, Typography } from '@mui/material'
-
-import { useNavigate } from 'react-router-dom'
 import { ImageCard } from './ImageCard'
 import { EllipsisMenuButton } from './EllipsisMenuButton'
 import { useMutation, useQueryClient } from '@tanstack/react-query'

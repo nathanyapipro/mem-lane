@@ -6,6 +6,7 @@ const dfltTheme = createTheme()
 const customShadow = dfltTheme.shadows
 
 customShadow[1] = `rgba(0, 0, 0, 0.24) 0px 3px 8px;`
+
 // A custom theme for this app
 const theme = createTheme({
   palette: {
