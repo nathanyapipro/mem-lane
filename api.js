@@ -143,8 +143,6 @@ app.get('/memories/:laneId', (req, res) => {
 
   const sort = req.query.sort ?? 'ASC'
 
-  console.log(sort)
-
   if (laneId === undefined) {
     res.status(400).json({
       error: 'lane id is required to query memories',
