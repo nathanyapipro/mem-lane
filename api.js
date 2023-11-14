@@ -42,7 +42,7 @@ db.serialize(() => {
   
     CREATE TABLE IF NOT EXISTS memory_images (
       id TEXT PRIMARY KEY,
-      memories_id INTEGER,
+      memory_id INTEGER,
       base64 TEXT
     );
   `)
@@ -142,12 +142,43 @@ app.get('/memories/:laneId', (req, res) => {
       error: 'lane id is required to query memories',
     })
   }
-  db.all('SELECT * FROM memories WHERE lane_id = ?', [laneId], (err, rows) => {
+  db.all('SELECT * FROM memories WHERE lane_id = ?', [laneId], (err, mems) => {
     if (err) {
       res.status(500).json({ error: err.message })
       return
     }
-    res.json({ memories: rows })
+
+    let memories = []
+
+    for (let i = 0; i < mems.length; i++) {
+      const memory = mems[i]
+      db.all(
+        'SELECT * FROM memory_images WHERE memory_id = ?',
+        [memory.id],
+        (err, images) => {
+          if (err) {
+            res.status(500).json({ error: err.message })
+            return
+          }
+
+          memories.push({
+            ...memory,
+            images: [...images],
+          })
+
+          // this is terrible move to a better lib with async await or proper promises...
+
+          if (i === mems.length - 1) {
+            console.log(memories)
+            res.json({ memories })
+          }
+        }
+      )
+    }
+
+    // console.log(memories)
+
+    // res.json({ memories: Promise.all(memories) })
   })
 })
 
@@ -176,7 +207,7 @@ app.post('/memories', (req, res) => {
     Promise.all(
       images.map((img) => {
         const imageStmt = db.prepare(
-          'INSERT INTO memory_images (memories_id, base64) VALUES (?, ?)'
+          'INSERT INTO memory_images (memory_id, base64) VALUES (?, ?)'
         )
         imageStmt.run(id, img, (err) => {
           if (err) {

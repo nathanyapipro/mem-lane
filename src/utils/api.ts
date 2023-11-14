@@ -67,13 +67,22 @@ export interface Memory {
   images: Array<string>
 }
 
+export interface MemoryWithImages extends Omit<Memory, 'images'> {
+  images: Array<{
+    id: string
+    base64: string
+  }>
+}
+
 export type CreateMemory = Omit<Memory, 'id'>
 
-export async function fetchMemories(id: string): Promise<Array<Memory>> {
+export async function fetchMemories(
+  id: string
+): Promise<Array<MemoryWithImages>> {
   try {
     const { data } = await instance.get(`/memories/${id}`)
 
-    return data.memories as Array<Memory>
+    return data.memories as Array<MemoryWithImages>
   } catch (error) {
     throw new Error('Failed to fetch memories')
   }

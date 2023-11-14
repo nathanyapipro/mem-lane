@@ -23,6 +23,7 @@ export const LanePage: React.FC = () => {
         flex: 1,
         height: '100%',
         width: '100%',
+        position: 'relative',
       }}
     >
       <LaneHeader lane={data} />

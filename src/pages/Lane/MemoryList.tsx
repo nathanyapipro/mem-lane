@@ -8,10 +8,12 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  Typography,
 } from '@mui/material'
 
 import { Add } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
+import { MemoryCard } from './MemoryCard'
 
 interface Props {
   lane?: Lane
@@ -20,7 +22,7 @@ interface Props {
 export const MemoryList: React.FC<Props> = ({ lane }) => {
   const [sort, setSort] = React.useState<string>('ASC')
 
-  const { data } = useQuery({
+  const { data: memories } = useQuery({
     queryKey: ['memories', `${lane?.id}`],
     queryFn: () => fetchMemories(`${lane!.id}`),
   })
@@ -37,6 +39,28 @@ export const MemoryList: React.FC<Props> = ({ lane }) => {
   const handleSortChange = (e: SelectChangeEvent<string>) => {
     const value = e.target.value
     setSort(value)
+  }
+
+  const renderMemories = () => {
+    if (memories === undefined || memories?.length === 0) {
+      return (
+        <Typography
+          variant='body1'
+          fontStyle='italic'
+          sx={{ textAlign: 'center' }}
+        >
+          No Memories found... try creating one
+        </Typography>
+      )
+    }
+
+    return (
+      <>
+        {memories.map((memory) => (
+          <MemoryCard memory={memory} />
+        ))}
+      </>
+    )
   }
 
   return (
@@ -71,6 +95,18 @@ export const MemoryList: React.FC<Props> = ({ lane }) => {
         >
           Create Memory
         </Button>
+      </Box>
+
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          mb: 2,
+          mt: 2,
+        }}
+      >
+        {renderMemories()}
       </Box>
     </Container>
   )
