@@ -86,6 +86,7 @@ export const MemoryCard: React.FC<Props> = ({ memory }) => {
         <Typography variant='body2' sx={{ mb: 2 }}>
           {memory.description}
         </Typography>
+
         <Box
           sx={{
             display: 'flex',
@@ -96,6 +97,9 @@ export const MemoryCard: React.FC<Props> = ({ memory }) => {
         >
           {renderImages()}
         </Box>
+        <Typography variant='body2' sx={{ mb: 2, textAlign: 'end' }}>
+          {new Date(memory.timestamp).toLocaleDateString()}
+        </Typography>
       </>
     )
   }

@@ -36,7 +36,7 @@ db.serialize(() => {
       name TEXT,
       description TEXT,
       timestamp DATE,
-      FOREIGN KEY(lane_id) REFERENCES lanes(id)
+      FOREIGN KEY(lane_id) REFERENCES lanes(id) ON DELETE CASCADE
     );
   `)
 
@@ -140,16 +140,22 @@ app.delete('/lanes/:id', (req, res) => {
 app.get('/memories/:laneId', (req, res) => {
   const laneId = req.params.laneId
 
+  const sort = req.query.sort ?? 'ASC'
+
+  console.log(sort)
+
   if (laneId === undefined) {
     res.status(400).json({
       error: 'lane id is required to query memories',
     })
   }
 
+  const order = `ORDER BY timestamp ${sort}`
+
   const getMemories = new Promise((resolve) => {
     db.serialize(() => {
       db.all(
-        'SELECT * FROM memories WHERE lane_id = ?',
+        `SELECT * FROM memories WHERE lane_id = ? ${order};`,
         [laneId],
         (err, rows) => {
           if (err) {
