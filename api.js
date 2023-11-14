@@ -10,12 +10,14 @@ app.use(cors())
 app.use(express.json({ extended: true, limit: '25mb' }))
 
 app.use(express.urlencoded({ extended: true, limit: '25mb' }))
+
 const port = 4001
 const db = new sqlite3.Database('memories.db')
 
 app.use(express.json())
 
 db.serialize(() => {
+  db.run(`PRAGMA foreign_keys = ON;`)
   db.run(`
 
     CREATE TABLE IF NOT EXISTS lanes (
@@ -43,7 +45,8 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS memory_images (
       id TEXT PRIMARY KEY,
       memory_id INTEGER,
-      base64 TEXT
+      base64 TEXT,
+      FOREIGN KEY(memory_id) REFERENCES memories(id) ON DELETE CASCADE
     );
   `)
 })
@@ -142,43 +145,51 @@ app.get('/memories/:laneId', (req, res) => {
       error: 'lane id is required to query memories',
     })
   }
-  db.all('SELECT * FROM memories WHERE lane_id = ?', [laneId], (err, mems) => {
-    if (err) {
-      res.status(500).json({ error: err.message })
-      return
-    }
 
-    let memories = []
-
-    for (let i = 0; i < mems.length; i++) {
-      const memory = mems[i]
+  const getMemories = new Promise((resolve) => {
+    db.serialize(() => {
       db.all(
-        'SELECT * FROM memory_images WHERE memory_id = ?',
-        [memory.id],
-        (err, images) => {
+        'SELECT * FROM memories WHERE lane_id = ?',
+        [laneId],
+        (err, rows) => {
           if (err) {
-            res.status(500).json({ error: err.message })
-            return
+            throw new Error('Failed to fetch memory')
           }
 
-          memories.push({
-            ...memory,
-            images: [...images],
-          })
-
-          // this is terrible move to a better lib with async await or proper promises...
-
-          if (i === mems.length - 1) {
-            console.log(memories)
-            res.json({ memories })
-          }
+          resolve(rows)
         }
       )
-    }
+    })
+  })
 
-    // console.log(memories)
+  const getMemoryImages = (memory) =>
+    new Promise((resolve) => {
+      db.serialize(() => {
+        db.all(
+          'SELECT * FROM memory_images WHERE memory_id = ?',
+          [memory.id],
+          (err, rows) => {
+            if (err) {
+              throw new Error('Failed to fetch memory images')
+            }
 
-    // res.json({ memories: Promise.all(memories) })
+            resolve({
+              ...memory,
+              images: rows,
+            })
+          }
+        )
+      })
+    })
+
+  getMemories.then((memories) => {
+    Promise.all(
+      memories.map((memory) => {
+        return getMemoryImages(memory)
+      })
+    ).then((memories) => {
+      res.json({ memories })
+    })
   })
 })
 
@@ -194,31 +205,45 @@ app.post('/memories', (req, res) => {
 
   const id = uuid.v4()
 
-  const stmt = db.prepare(
-    'INSERT INTO memories (id, name, lane_id, description, timestamp) VALUES (?,?, ?, ?, ?)'
-  )
+  const createMemory = new Promise((resolve) => {
+    db.serialize(() => {
+      const stmt = db.prepare(
+        'INSERT INTO memories (id, name, lane_id, description, timestamp) VALUES (?,?, ?, ?, ?)'
+      )
 
-  stmt.run(id, name, laneId, description, timestamp, (err) => {
-    if (err) {
-      res.status(500).json({ error: err.message })
-      return
-    }
+      stmt.run(id, name, laneId, description, timestamp, (err) => {
+        if (err) {
+          res.status(500).json({ error: err.message })
+          return
+        }
 
+        resolve(true)
+      })
+    })
+  })
+
+  const createImage = (img) =>
+    new Promise((resolve) => {
+      const imageStmt = db.prepare(
+        'INSERT INTO memory_images (memory_id, base64) VALUES (?, ?)'
+      )
+      imageStmt.run(id, img, (err) => {
+        if (err) {
+          res.status(500).json({ error: err.message })
+          return
+        }
+        resolve(true)
+      })
+    })
+
+  createMemory.then((_sucess) => {
     Promise.all(
       images.map((img) => {
-        const imageStmt = db.prepare(
-          'INSERT INTO memory_images (memory_id, base64) VALUES (?, ?)'
-        )
-        imageStmt.run(id, img, (err) => {
-          if (err) {
-            res.status(500).json({ error: err.message })
-            return
-          }
-        })
+        return createImage(img)
       })
-    )
-
-    res.status(201).json({ message: 'Memory created successfully' })
+    ).then((_ok) => {
+      res.status(201).json({ message: 'Memory created successfully' })
+    })
   })
 })
 
@@ -267,6 +292,7 @@ app.delete('/memories/:id', (req, res) => {
       res.status(500).json({ error: err.message })
       return
     }
+
     res.json({ message: 'Memory deleted successfully' })
   })
 })

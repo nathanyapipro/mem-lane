@@ -106,7 +106,7 @@ export const CreateMemoryPage: React.FC = () => {
     mutationFn: postMemory,
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ['memories', `${laneId}`] })
+      queryClient.resetQueries({ queryKey: ['memories', `${laneId}`] })
       navigate(`/lanes/${laneId}`)
     },
   })

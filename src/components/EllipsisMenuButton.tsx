@@ -8,7 +8,7 @@ type Props = {
   anchorElement: HTMLElement | null
   handleClickOptionsMenu: (e: any) => void
   handleCloseOptionsMenu: (e: any) => void
-  handleUpdateButtonClick: (
+  handleUpdateButtonClick?: (
     e: React.MouseEvent<HTMLLIElement, MouseEvent>
   ) => void
   handleDeleteButtonClick: (
@@ -16,7 +16,7 @@ type Props = {
   ) => void
 }
 
-export const LaneMenuButton: FC<Props> = ({
+export const EllipsisMenuButton: FC<Props> = ({
   anchorElement,
   handleClickOptionsMenu,
   handleCloseOptionsMenu,
@@ -47,10 +47,12 @@ export const LaneMenuButton: FC<Props> = ({
           horizontal: 'right',
         }}
       >
-        <MenuItem onClick={handleUpdateButtonClick}>
-          <Edit fontSize='small' sx={{ mr: 2 }} />
-          <Typography variant='body2'>Edit</Typography>
-        </MenuItem>
+        {handleUpdateButtonClick !== undefined && (
+          <MenuItem onClick={handleUpdateButtonClick}>
+            <Edit fontSize='small' sx={{ mr: 2 }} />
+            <Typography variant='body2'>Edit</Typography>
+          </MenuItem>
+        )}
         <MenuItem onClick={handleDeleteButtonClick}>
           <Delete fontSize='small' sx={{ mr: 2 }} />
           <Typography variant='body2'>Delete</Typography>

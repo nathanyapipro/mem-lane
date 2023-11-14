@@ -1,4 +1,4 @@
-export const getBase64 = (file: Blob) => {
+export const getBase64 = (file: Blob): Promise<string> => {
   return new Promise((resolve) => {
     let baseURL = ''
     // Make new FileReader
@@ -10,7 +10,7 @@ export const getBase64 = (file: Blob) => {
     // on reader load somthing...
     reader.onload = () => {
       // Make a fileInfo Object
-      console.log('Called', reader)
+
       baseURL = reader.result as string
 
       resolve(baseURL)

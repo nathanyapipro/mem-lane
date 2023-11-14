@@ -40,7 +40,7 @@ export async function postLane(params: CreateLane): Promise<void> {
   }
 }
 
-export async function putLane(id: number, params: CreateLane): Promise<void> {
+export async function putLane(id: string, params: CreateLane): Promise<void> {
   try {
     await instance.put(`/lanes/${id}`, params)
   } catch (error) {
@@ -60,7 +60,7 @@ export async function deleteLane(id: string): Promise<{ id: string }> {
 
 export interface Memory {
   id: number
-  laneId: string
+  lane_id: string
   name: string
   description: string
   timestamp: number | string
@@ -74,7 +74,7 @@ export interface MemoryWithImages extends Omit<Memory, 'images'> {
   }>
 }
 
-export type CreateMemory = Omit<Memory, 'id'>
+export type CreateMemory = Omit<Memory, 'id' | 'lane_id'> & { laneId: string }
 
 export async function fetchMemories(
   id: string
@@ -93,5 +93,15 @@ export async function postMemory(params: CreateMemory): Promise<void> {
     await instance.post('/memories', params)
   } catch (error) {
     throw new Error('Failed to create lane')
+  }
+}
+
+export async function deleteMemory(id: string): Promise<{ id: string }> {
+  try {
+    await instance.delete(`/memories/${id}`)
+
+    return { id }
+  } catch (error) {
+    throw new Error('Failed to update lane')
   }
 }

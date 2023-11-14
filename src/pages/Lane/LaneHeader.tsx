@@ -3,10 +3,10 @@ import * as React from 'react'
 import { Lane, deleteLane } from '../../utils/api'
 import { Card, Skeleton, Typography } from '@mui/material'
 import { EditLaneForm } from './EditLaneForm'
-import { LaneMenuButton } from './LaneMenuButton'
+
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-
+import { EllipsisMenuButton } from '../../components/EllipsisMenuButton'
 interface Props {
   lane?: Lane
 }
@@ -72,7 +72,7 @@ export const LaneHeader: React.FC<Props> = ({ lane }) => {
     if (isEdit === false) {
       return (
         <>
-          <LaneMenuButton
+          <EllipsisMenuButton
             anchorElement={anchorElement}
             handleClickOptionsMenu={handleClickOptionsMenu}
             handleCloseOptionsMenu={handleCloseOptionsMenu}

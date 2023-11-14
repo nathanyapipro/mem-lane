@@ -13,7 +13,7 @@ import {
 
 import { Add } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
-import { MemoryCard } from './MemoryCard'
+import { MemoryCard } from '../../components/MemoryCard'
 
 interface Props {
   lane?: Lane
@@ -57,7 +57,7 @@ export const MemoryList: React.FC<Props> = ({ lane }) => {
     return (
       <>
         {memories.map((memory) => (
-          <MemoryCard memory={memory} />
+          <MemoryCard key={memory.id} memory={memory} />
         ))}
       </>
     )
